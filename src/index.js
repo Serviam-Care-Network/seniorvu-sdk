@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const DEFAULT_OPTS = {
-  baseUrl: 'https://staging.seniorvu.com/',
+  baseUrl: 'https://staging.seniorvu.com',
 };
 
 const PATHS = [
@@ -46,8 +46,10 @@ export default class SeniorVu {
 
     // Create functions for each XHR verb
     ['get', 'post', 'put', 'delete'].map(verb => {
-      // Clear chain
       this.prototype[verb] = () => {
+        // Clear chain
+        this.chain = null;
+
         const opts = Object.assign({}, this.opts);
         opts.method = verb;
         opts.url = [this.opts.baseUrl].concat(this.chain.segments).join('/');
@@ -130,13 +132,7 @@ export default class SeniorVu {
     return /srvu-.{12,}/.test(token);
   }
 
-  _startChain(...segments) {
-    this.chain = {
-      segments,
-    };
-  }
-
   _chain(...segments) {
-    this.chain.segments.push(segments.filter(x => x !== null && x !== undefined));
+    (this.chain || this.chain = {}).segments.push(segments.filter(x => x !== null && x !== undefined));
   }
 }
