@@ -5,6 +5,7 @@
   "main": "dist/seniorvu.js",
   "module": "src/index.js",
   "scripts": {
+    "clean": "rimraf generated/* dist/*",
     "test": "xo && ava",
     "build": "webpack",
     "toc": "doctoc README.md --github"
@@ -30,8 +31,12 @@
     "babel-loader": "^7.0.0",
     "babel-preset-es2015": "^6.24.1",
     "doctoc": "^1.3.0",
+    "eslint": "^3.19.0",
     "eslint-config-xo-space": "^0.16.0",
+    "handlebars": "^4.0.10",
+    "lodash": "^4.17.4",
     "npm-run-all": "^4.0.2",
+    "nyc": "^11.0.2",
     "uglify-js": "^2.x",
     "webpack": "^3.0.0",
     "xo": "^0.18.2"

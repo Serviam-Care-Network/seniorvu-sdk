@@ -4,11 +4,58 @@ const DEFAULT_OPTS = {
   baseUrl: 'https://staging.seniorvu.com/',
 };
 
+const PATHS = [
+  'claimRequests',
+  'communities',
+  'address',
+  'amenities',
+  'appointments',
+  'archivedLeads',
+  'assets',
+  'image',
+  'video',
+  'awsSettings',
+  'cartItems',
+  'hours',
+  'leads',
+  'neighborhoods',
+  'payment',
+  'purchasedLeads',
+  'carers',
+  'events',
+  'reviews',
+  'rooms',
+  'upload',
+  'predict',
+  'proximity',
+  'batchCreate',
+  'deleteCreated',
+  'users',
+  'password',
+  'forgotPassword',
+  'me',
+  'reset',
+  'webhook',
+];
+
 export default class SeniorVu {
   constructor(opts = {}) {
     this.token = '';
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
     this.ax = axios.create();
+
+    // Create functions for each XHR verb
+    ['get', 'post', 'put', 'delete'].map(verb => {
+      // Clear chain
+      this.prototype[verb] = () => {
+        const opts = Object.assign({}, this.opts);
+        opts.method = verb;
+        opts.url = [this.opts.baseUrl].concat(this.chain.segments).join('/');
+        return this.ax(opts);
+      };
+
+      return null;
+    });
   }
 
   config(opts = {}) {
@@ -71,7 +118,25 @@ export default class SeniorVu {
   //   });
   // }
 
+  _buildMethods() {
+    for (const path of PATHS) {
+      this[path] = arg => {
+        this._chain(path, arg);
+      };
+    }
+  }
+
   _isOneTimeToken(token) {
     return /srvu-.{12,}/.test(token);
+  }
+
+  _startChain(...segments) {
+    this.chain = {
+      segments,
+    };
+  }
+
+  _chain(...segments) {
+    this.chain.segments.push(segments.filter(x => x !== null && x !== undefined));
   }
 }

@@ -1,0 +1,3227 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Seniorvu Internal API",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "jsonWebToken": {
+      "type": "apiKey",
+      "name": "access_token",
+      "in": "query"
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "User Authorization",
+        "description": "User authorization endpoint",
+        "parameters": [
+          {
+            "name": "body",
+            "description": "User credentials",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Credentials",
+              "type": "object",
+              "required": [
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Token to use for authorization needs"
+          },
+          "401": {
+            "description": "User not found or incorrect password"
+          }
+        }
+      }
+    },
+    "/auth/registration": {
+      "post": {
+        "summary": "Register new user",
+        "description": "Register new user and return authorization token",
+        "parameters": [
+          {
+            "name": "credentials",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Credentials"
+            }
+          }
+        ],
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Token to use for authorization needs"
+          },
+          "400": {
+            "description": "User already exists"
+          },
+          "404": {
+            "description": "Missing credentials"
+          }
+        }
+      }
+    },
+    "/api/claimRequests": {
+      "get": {
+        "summary": "List claim requests",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by claim request status: 'approved', 'declined', 'pending'. The service defaults to 'pending'.",
+            "type": "string"
+          },
+          {
+            "name": "s",
+            "in": "query",
+            "description": "Search string to filter claim requests",
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Claim Requests"
+        ],
+        "responses": {
+          "200": {
+            "description": "List claim requests"
+          },
+          "401": {
+            "description": "User is not authorized to perform operation"
+          },
+          "403": {
+            "description": "User is forbidden to perform operation"
+          },
+          "404": {
+            "description": "The claim request was not found"
+          }
+        }
+      }
+    },
+    "/api/communities": {
+      "get": {
+        "summary": "List communities",
+        "description": "Information returned depends on user authorization",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search string to filter communities by name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "$ref": "#/definitions/offset"
+          },
+          {
+            "$ref": "#/definitions/limit"
+          }
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of communities",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CommunityFull"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create community",
+        "description": "Create new community",
+        "parameters": [
+          {
+            "name": "community",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CommunityFull"
+            }
+          }
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "201": {
+            "description": "Created community",
+            "schema": {
+              "$ref": "#/definitions/CommunityFull"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is not authorized"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}": {
+      "get": {
+        "summary": "Get community",
+        "description": "Information returned depends on authorization",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "The community identifier",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get info about single community",
+            "schema": {
+              "$ref": "#/definitions/Community"
+            }
+          },
+          "404": {
+            "description": "Community with given id is not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update community",
+        "description": "Some fields can only be updated by authorized users",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "The community identifier",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "community",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CommunityFull"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated community JSON",
+            "schema": {
+              "$ref": "#/definitions/CommunityFull"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is not authorized"
+          },
+          "404": {
+            "description": "Community with given id was not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete existing community",
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "description": "Authorized user can delete existing community",
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "204": {
+            "description": "Existing community has been successfully deleted"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community with given id is not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/address": {
+      "put": {
+        "summary": "Update community address",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "Coordinates",
+            "in": "body",
+            "description": "New latitude and longitude for the community",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Coordinates"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Address successfully updated"
+          },
+          "400": {
+            "description": "Bad latitude or longitude values"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is not authorized"
+          },
+          "404": {
+            "description": "Community is not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/amenities": {
+      "get": {
+        "summary": "List community amenities",
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "Community identifier",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of community amenities",
+            "schema": {
+              "title": "Amenities",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CommunityAmenity"
+              }
+            }
+          },
+          "404": {
+            "description": "Community is not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Set active/inactive amenities for community",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "amenities",
+            "in": "body",
+            "description": "Array of amenities IDs to be set as active for current community",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of amenities, which status was updated"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community is not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/appointments": {
+      "post": {
+        "summary": "Create new appointment request for community",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "appointment",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AppointmentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New appointment request successfully created"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/archivedLeads": {
+      "get": {
+        "summary": "Get list of community's archived leads",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all archived leads",
+            "schema": {
+              "title": "Archived leads",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Lead"
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add lead to archived",
+        "tags": [
+          "Leads",
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "leadId",
+            "in": "body",
+            "description": "ID of lead to be added to archived",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lead was successfully added to archived",
+            "schema": {
+              "$ref": "#/definitions/Lead"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community or lead was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/archivedLeads/{archivedLeadId}": {
+      "delete": {
+        "summary": "Unarchive lead",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "archivedLeadId",
+            "in": "path",
+            "description": "ID of the archived lead",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lead was successfully unarchived"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community or archived lead was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/assets": {
+      "get": {
+        "summary": "Get all assets of a given community",
+        "description": "Retrieve array of community assets (images and videos) as JSON objects",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of community assets objects",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CommunityAsset"
+              }
+            }
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/assets/image": {
+      "post": {
+        "summary": "Upload new image for community",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "asset",
+            "in": "formData",
+            "description": "Image file to upload",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "responses": {
+          "201": {
+            "description": "New image successfully uploaded",
+            "schema": {
+              "$ref": "#/definitions/CommunityAsset"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Video asset was not found / invalid video URL"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/assets/video": {
+      "post": {
+        "summary": "Add youtube / vimeo video to community",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "Video",
+            "in": "body",
+            "description": "Video url and type (360, flyover, etc.)",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Video"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New video successfully added for community",
+            "schema": {
+              "$ref": "#/definitions/CommunityAsset"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Video asset was not found / invalid video URL"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/assets/awsSettings": {
+      "get": {
+        "summary": "Get settings for uploading to amazon bucket",
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "AWS settings to upload files for specified bucket"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/assets/{assetId}": {
+      "put": {
+        "summary": "Update existing asset",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "assetId",
+            "in": "path",
+            "description": "ID of the asset",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "asset",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CommunityAsset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asset successfully updated"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community or community asset was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/cartItems": {
+      "get": {
+        "summary": "Get list of all cart items",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of cart items",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Lead"
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community is not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Put lead into cart",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "leadId",
+            "in": "body",
+            "description": "ID of lead to be placed into cart",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Lead was successfully added into cart",
+            "schema": {
+              "$ref": "#/definitions/CartItem"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Clear shopping cart",
+        "description": "Remove all pending items from shopping cart",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shopping cart was successfully cleared"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/cartItems/{cartItemId}": {
+      "delete": {
+        "summary": "Remove cart item from shopping cart",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "cartItemId",
+            "in": "path",
+            "description": "ID of the cart item",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cart item was successfully removed from shopping cart"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community of cart item was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/hours": {
+      "get": {
+        "summary": "Get community's working hours",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of community's working hours",
+            "schema": {
+              "title": "Hours",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CommunityHour"
+              }
+            }
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new working hours for the community",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "hour",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CommunityHour"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Create new working hours for community",
+            "schema": {
+              "$ref": "#/definitions/CommunityHour"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/hours/{hourId}": {
+      "put": {
+        "summary": "Update existing working hours of community",
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "hourId",
+            "in": "path",
+            "description": "ID of the hours",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "hours",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CommunityHour"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Working hours were successfully updated",
+            "schema": {
+              "$ref": "#/definitions/CommunityHour"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community or community hours was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/leads": {
+      "get": {
+        "summary": "Get leads related to community",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Choose what type of leads to retrieve. Can be one of ['nearby', 'archived', 'purchased']",
+            "default": "nearby",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of leads",
+            "schema": {
+              "title": "Leads",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Lead"
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/neighborhoods": {
+      "get": {
+        "summary": "Get neighbourhood objects near community",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of neighbourhood objects",
+            "schema": {
+              "title": "Neighbourhood",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CommunityNeighbourhood"
+              }
+            }
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/payment": {
+      "post": {
+        "summary": "Subscribe to / buy all leads from the shopping cart",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of purchased leads",
+            "schema": {
+              "title": "Purchased leads",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PurchasedLead"
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / user / subscription key / etc. is missing"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/purchasedLeads": {
+      "get": {
+        "summary": "Get list of community's purchased leads",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of purchased leads",
+            "schema": {
+              "title": "Purchased leads",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/PurchasedLead"
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/purchasedLeads/{purchasedLeadId}": {
+      "get": {
+        "summary": "Get info about single purchased lead",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Single community's purchased lead",
+            "schema": {
+              "$ref": "#/definitions/PurchasedLead"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / purchased lead was not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update info on the community's purchased lead",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLead",
+            "in": "body",
+            "description": "Purchased Lead fields to update",
+            "schema": {
+              "$ref": "#/definitions/PurchasedLead"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Purchased Lead successfully updated",
+            "schema": {
+              "$ref": "#/definitions/PurchasedLead"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / Purchased Lead was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/purchasedLeads/{purchasedLeadId}/carers": {
+      "get": {
+        "summary": "Get list of carers attached to purchased lead",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List caregivers attached to purchased lead",
+            "schema": {
+              "title": "Caregivers",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Caregiver"
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community or purchased lead was not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new carer for purchased lead",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "carer",
+            "in": "body",
+            "description": "Caregiver JSON to post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Caregiver"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created and attached new carer to purchased lead",
+            "schema": {
+              "$ref": "#/definitions/Caregiver"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / purchased lead was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/purchasedLeads/{purchasedLeadId}/carers/{carerId}": {
+      "get": {
+        "summary": "Get info about single carer",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "carerId",
+            "in": "path",
+            "description": "ID of the carer",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info about carer attached to purchased lead",
+            "schema": {
+              "$ref": "#/definitions/Caregiver"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / purchased lead / carer was not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update carer info",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "carerId",
+            "in": "path",
+            "description": "ID of the carer",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "carer",
+            "in": "body",
+            "description": "Caregiver fields to be updated",
+            "schema": {
+              "$ref": "#/definitions/Caregiver"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Caregiver successfully updated",
+            "schema": {
+              "$ref": "#/definitions/Caregiver"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / purchased lead / carer was not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete carer",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "carerId",
+            "in": "path",
+            "description": "ID of the carer",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Caregiver successfully deleted"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / purchased lead / carer was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/purchasedLeads/{purchasedLeadId}/events": {
+      "get": {
+        "summary": "Get list of events associated with purchased lead",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events associated with purchased lead",
+            "schema": {
+              "title": "Events",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Caregiver"
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / purchased lead was not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new event associated with purchased lead",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "event",
+            "in": "body",
+            "description": "Event JSON to post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Event"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New event successfully created",
+            "schema": {
+              "$ref": "#/definitions/Caregiver"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / purchased lead was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/purchasedLeads/{purchasedLeadId}/events/{eventId}": {
+      "delete": {
+        "summary": "Delete event",
+        "tags": [
+          "Communities",
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "purchasedLeadId",
+            "in": "path",
+            "description": "ID of the purchased lead",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "description": "ID of the event",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event successfully deleted"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / purchased lead / event was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/reviews": {
+      "get": {
+        "summary": "Get list of reviews for the community",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list of all community reviews",
+            "schema": {
+              "title": "Reviews",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CommunityReview"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new community review",
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "CommunityReview",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CommunityReview"
+            }
+          }
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "201": {
+            "description": "New review successfully created",
+            "schema": {
+              "$ref": "#/definitions/CommunityReview"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/reviews/{reviewId}": {
+      "put": {
+        "summary": "Update existing review",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "description": "ID of the review",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "CommunityReview",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CommunityReview"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review successfully updated",
+            "schema": {
+              "$ref": "#/definitions/CommunityReview"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community / review was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/rooms": {
+      "get": {
+        "summary": "get list of community's rooms",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of rooms",
+            "schema": {
+              "title": "Rooms",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Room"
+              }
+            }
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new room for the community",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "room",
+            "in": "body",
+            "description": "Room JSON to post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Room"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New room successfully created",
+            "schema": {
+              "$ref": "#/definitions/Room"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/rooms/{roomId}": {
+      "get": {
+        "summary": "Get info about single community's room",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "roomId",
+            "in": "path",
+            "description": "ID of the room",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info about single room",
+            "schema": {
+              "$ref": "#/definitions/Room"
+            }
+          },
+          "404": {
+            "description": "Community / room was not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update info about community's room",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "roomId",
+            "in": "path",
+            "description": "ID of the room",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "room",
+            "in": "body",
+            "description": "Room JSON to post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Room"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New room successfully updated",
+            "schema": {
+              "$ref": "#/definitions/Room"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete community's room",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "roomId",
+            "in": "path",
+            "description": "ID of the room",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Room successfully deleted"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/rooms/{roomId}/upload": {
+      "put": {
+        "summary": "Add new / update existing room image",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "roomId",
+            "in": "path",
+            "description": "ID of the room",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "image",
+            "in": "formData",
+            "description": "Image file to upload",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Room's image successfully created / updated",
+            "schema": {
+              "$ref": "#/definitions/Image"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/{communityId}/rooms/{roomId}/image": {
+      "delete": {
+        "summary": "Delete existing room image",
+        "tags": [
+          "Communities"
+        ],
+        "parameters": [
+          {
+            "name": "communityId",
+            "in": "path",
+            "description": "ID of the community",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "roomId",
+            "in": "path",
+            "description": "ID of the room",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room's image successfully deleted"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      }
+    },
+    "/api/communities/predict": {
+      "get": {
+        "summary": "Predict communities",
+        "description": "Information returned depends on user authorization",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search string to predict communities by name or city/state",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ct",
+            "in": "query",
+            "description": "Comma delimited string of community care type ids",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "$ref": "#/definitions/offset"
+          },
+          {
+            "$ref": "#/definitions/limit"
+          }
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of communities",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CommunityFull"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/communities/proximity": {
+      "get": {
+        "summary": "Communities within proximity of zip code",
+        "description": "Information returned depends on user authorization",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Zip code for which we find communities within proximity of.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ct",
+            "in": "query",
+            "description": "Comma delimited string of community care type ids",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "$ref": "#/definitions/offset"
+          },
+          {
+            "$ref": "#/definitions/limit"
+          }
+        ],
+        "tags": [
+          "Communities"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of communities, including distances from zip",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CommunityFull"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leads": {
+      "post": {
+        "summary": "Create new lead",
+        "description": "A community can create new lead for immediate purchase. The user will not be able to create a lead if he has not associated community",
+        "tags": [
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "lead",
+            "in": "body",
+            "description": "Lead JSON to post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Lead"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New lead successfully created and added into shopping cart",
+            "schema": {
+              "$ref": "#/definitions/CartItem"
+            }
+          },
+          "400": {
+            "description": "Lead object is missing in request body or validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User's community was not found"
+          }
+        }
+      }
+    },
+    "/api/leads/upload": {
+      "post": {
+        "summary": "Upload csv/xls file for leads import",
+        "tags": [
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "CSV/XLS file to upload",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "responses": {
+          "201": {
+            "description": "File successfully uploaded",
+            "schema": {
+              "$ref": "#/definitions/LeadFile"
+            }
+          },
+          "400": {
+            "description": "File to import is missing",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/leads/batchCreate": {
+      "post": {
+        "summary": "Begin import of leads",
+        "description": "Parse previously uploaded CSV/XLS and create / update appropriate leads",
+        "tags": [
+          "Leads"
+        ],
+        "parameters": [
+          {
+            "name": "leadFile",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LeadFile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Import was successful",
+            "schema": {
+              "$ref": "#/definitions/ImportResult"
+            }
+          },
+          "400": {
+            "description": "File for import is missing or of unknown type"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User does not have a community or user's community not found"
+          }
+        }
+      }
+    },
+    "/api/leads/deleteCreated": {
+      "delete": {
+        "summary": "Delete manually created but not purchased community's leads",
+        "tags": [
+          "Leads"
+        ],
+        "responses": {
+          "200": {
+            "description": "All unpurchased leads were successfully deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User does not have a community or user's community not found"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Get list of existing users",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of system users",
+            "schema": {
+              "title": "Users",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "Community was not found"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "body",
+            "description": "User JSON to post",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully created. Authentication token is returned"
+          },
+          "422": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
+    "/api/users/{userId}": {
+      "get": {
+        "summary": "get info about single user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of the user to retrieve",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info about single user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "404": {
+            "description": "User was not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete user",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of the user to retrieve",
+            "type": "integer",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User successfully deleted"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "404": {
+            "description": "User was not found"
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/password": {
+      "put": {
+        "summary": "Change user's password",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of the user to retrieve",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "update password",
+            "in": "body",
+            "description": "Old and new passwords",
+            "schema": {
+              "properties": {
+                "oldPassword": {
+                  "type": "string"
+                },
+                "newPassword": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Password successfully updated"
+          },
+          "401": {
+            "description": "User is not authenticated"
+          },
+          "403": {
+            "description": "User is forbidden to perform action"
+          },
+          "422": {
+            "description": "validation error"
+          }
+        }
+      }
+    },
+    "/api/users/forgotPassword": {
+      "post": {
+        "summary": "Initiate flow to change forgotten password",
+        "description": "The user will be sent an email with temporary link to reset password",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "description": "User's email",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Temporary link to reset password generated and sent to user"
+          },
+          "404": {
+            "description": "User with this email was not found"
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "summary": "User Information",
+        "description": "The Users/Me endpoint returns general information about currently authorized user",
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Information for the currently authorized user"
+          },
+          "401": {
+            "description": "user is not authenticated"
+          }
+        }
+      }
+    },
+    "/api/users/reset/{token}": {
+      "get": {
+        "summary": "Search for user in DB by temporary token",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Temporary token for password update needs",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User object with not expired token",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "404": {
+            "description": "User was not found / token expired"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update user's password if token is valid and not expired",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "description": "Temporary token for password update needs",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password successfully updated"
+          },
+          "404": {
+            "description": "User was not found / token expired"
+          }
+        }
+      }
+    },
+    "/webhook": {}
+  },
+  "definitions": {
+    "offset": {
+      "name": "offset",
+      "in": "query",
+      "description": "Starting index of the list",
+      "type": "integer"
+    },
+    "limit": {
+      "name": "limit",
+      "in": "query",
+      "description": "Size of the list",
+      "type": "integer"
+    },
+    "Point": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "coordinates": {
+          "type": "array",
+          "minLength": 2,
+          "maxLength": 2,
+          "items": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      }
+    },
+    "AppointmentRequest": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "Caregiver": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "leadId": {
+          "type": "integer"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "familyReference": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "CartItem": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "completed": {
+          "type": "boolean"
+        },
+        "ownerId": {
+          "type": "integer"
+        },
+        "communityId": {
+          "type": "integer"
+        },
+        "leadId": {
+          "type": "integer"
+        },
+        "Lead": {
+          "$ref": "#/definitions/Lead"
+        }
+      }
+    },
+    "Community": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "communityType": {
+          "type": "string"
+        },
+        "shortName": {
+          "type": "string",
+          "description": "short name of a community."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "community full name."
+        },
+        "url": {
+          "type": "string",
+          "description": "URL to a community landing page"
+        },
+        "emailMain": {
+          "type": "string",
+          "description": "main email of a community"
+        },
+        "emailAppointment": {
+          "type": "string",
+          "description": "email to send appointments to"
+        },
+        "rating": {
+          "type": "integer",
+          "description": "community's rating"
+        },
+        "description": {
+          "type": "string",
+          "description": "a description for a community"
+        }
+      }
+    },
+    "CommunityFull": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "alias": {
+          "type": "string"
+        },
+        "communityType":  {
+          "type": "string"
+        },
+        "companyId":  {
+          "type": "integer"
+        },
+        "status":  {
+          "type": "string"
+        },
+        "name":  {
+          "type": "string"
+        },
+        "url":  {
+          "type": "string"
+        },
+        "emailMain":  {
+          "type": "string"
+        },
+        "emailAppointment":  {
+          "type": "string"
+        },
+        "rating": {
+          "type": "integer"
+        },
+        "address1":  {
+          "type": "string"
+        },
+        "address2":  {
+          "type": "string"
+        },
+        "city":  {
+          "type": "string"
+        },
+        "state":  {
+          "type": "string"
+        },
+        "zip":  {
+          "type": "string"
+        },
+        "ratedCount": {
+          "type": "integer"
+        },
+        "description":  {
+          "type": "string"
+        },
+        "createdBy":  {
+          "type": "string"
+        },
+        "softVuKey": {
+          "type": "string"
+        },
+        "position": {
+          "$ref": "#/definitions/Point"
+        },
+        "neighbourhoodUpdatedAt": {
+          "type": "string",
+          "format": "dateTime"
+        },
+        "subscriptionKey": {
+          "type": "string"
+        },
+        "billing": {
+          "type": "boolean"
+        },
+        "leadEmailRequired": {
+          "type": "boolean"
+        },
+        "leadCaregiversRequired": {
+          "type": "boolean"
+        },
+        "managed": {
+          "type": "boolean"
+        },
+        "stripeCustomerKey": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "dateTime"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "dateTime"
+        },
+        "filtersId": {
+          "type": "integer"
+        },
+        "adminEmail": {
+          "type": "string",
+          "format": "email"
+        },
+        "adminFirstName": {
+          "type": "string"
+        },
+        "adminLastName": {
+          "type": "string"
+        },
+        "adminTitle": {
+          "type": "string"
+        },
+        "adminPhone": {
+          "type": "string"
+        }
+      }
+    },
+    "CommunityAmenity": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "shortName": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "CommunityAsset": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "shortName": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "mediaType": {
+          "type": "string"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "position": {
+          "type": "integer"
+        }
+      }
+    },
+    "CommunityHour": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "openTime": {
+          "type": "string"
+        },
+        "closeTime": {
+          "type": "string"
+        },
+        "day": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string"
+        },
+        "dayOff": {
+          "type": "boolean"
+        },
+        "timeZone": {
+          "type": "string"
+        }
+      }
+    },
+    "CommunityNeighbourhood": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "distance": {
+          "type": "integer"
+        },
+        "walkTime": {
+          "type": "integer"
+        }
+      }
+    },
+    "CommunityReview": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "review": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "rating": {
+          "type": "integer"
+        }
+      }
+    },
+    "Company": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "Coordinates": {
+      "properties": {
+        "lat": {
+          "type": "number"
+        },
+        "lon": {
+          "type": "number"
+        }
+      }
+    },
+    "Credentials": {
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "statusCode": {
+          "type": "integer"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "Event": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        }
+      }
+    },
+    "ImportResult": {
+      "type": "object",
+      "properties": {
+        "matches": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer"
+            },
+            "leads": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Lead"
+              }
+            }
+          }
+        },
+        "newLeads": {
+          "type": "integer"
+        },
+        "deceased": {
+          "type": "integer"
+        },
+        "purchased": {
+          "type": "integer"
+        },
+        "errors": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "LeadFile": {
+      "type": "object",
+      "properties": {
+        "fileHash": {
+          "type": "string"
+        },
+        "fileExtension": {
+          "type": "string"
+        }
+      }
+    },
+    "Image": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "uriThumb": {
+          "type": "string"
+        }
+      }
+    },
+    "Lead": {
+      "type": "object",
+      "required": [
+        "firstName",
+        "lastName",
+        "address1",
+        "city",
+        "state",
+        "zip"
+      ],
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "source": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "format": "float"
+        },
+        "email": {
+          "type": "string"
+        },
+        "basePersonaScore": {
+          "type": "integer"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "age": {
+          "type": "integer"
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "female",
+            "male"
+          ]
+        },
+        "dob": {
+          "type": "string",
+          "format": "date"
+        },
+        "memberDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "maritalStatus": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "annualIncome": {
+          "type": "number",
+          "format": "double"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "address1": {
+          "type": "string"
+        },
+        "address2": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "zip": {
+          "type": "integer"
+        }
+      }
+    },
+    "PurchasedLead": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "female",
+            "male"
+          ]
+        },
+        "age": {
+          "type": "integer"
+        },
+        "address1": {
+          "type": "string"
+        },
+        "address2": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "zip": {
+          "type": "integer"
+        },
+        "softVuId": {
+          "type": "integer"
+        },
+        "segment": {
+          "type": "integer"
+        },
+        "messages": {
+          "type": "integer"
+        },
+        "maritalStatus": {
+          "type": "integer"
+        },
+        "annualIncome": {
+          "type": "number"
+        },
+        "subscriptionKey": {
+          "type": "string"
+        },
+        "netWorth": {
+          "type": "number"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "insurance": {
+          "type": "string"
+        },
+        "communityHasAccess": {
+          "type": "boolean"
+        },
+        "isArchived": {
+          "type": "boolean"
+        },
+        "relationship": {
+          "type": "string"
+        },
+        "channel": {
+          "type": "string"
+        }
+      }
+    },
+    "Room": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "bedroomNum": {
+          "type": "integer"
+        },
+        "bathroomNum": {
+          "type": "integer"
+        },
+        "squareFootage": {
+          "type": "number"
+        },
+        "privacy": {
+          "type": "string"
+        },
+        "priceMin": {
+          "type": "number"
+        },
+        "priceMax": {
+          "type": "number"
+        }
+      }
+    },
+    "User": {
+      "properties": {
+        "_id": {
+          "type": "integer"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "default": "user"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "stripeCustomerKey": {
+          "type": "string"
+        }
+      }
+    },
+    "Video": {
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
