@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/softvu/seniorvu-sdk.svg?branch=master)](https://travis-ci.org/softvu/seniorvu-sdk) [![Coverage Status](https://coveralls.io/repos/github/softvu/seniorvu-sdk/badge.svg?branch=master)](https://coveralls.io/github/softvu/seniorvu-sdk?branch=master) [![Dependency Status](https://dependencyci.com/github/softvu/seniorvu-sdk/badge)](https://dependencyci.com/github/softvu/seniorvu-sdk)
+[![Build Status](https://travis-ci.org/softvu/seniorvu-sdk.svg?branch=master)](https://travis-ci.org/softvu/seniorvu-sdk) [![Coverage Status](https://coveralls.io/repos/github/softvu/seniorvu-sdk/badge.svg?branch=master)](https://coveralls.io/github/softvu/seniorvu-sdk?branch=master) [![Dependency Status](https://dependencyci.com/github/softvu/seniorvu-sdk/badge)](https://dependencyci.com/github/softvu/seniorvu-sdk) [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -6,8 +6,16 @@
 
 - [seniorvu-sdk](#seniorvu-sdk)
 - [Install](#install)
-- [Usage Standards](#usage-standards)
+- [Usage](#usage)
+  - [Configuration](#configuration)
   - [Authentication](#authentication)
+  - [Fetching Data](#fetching-data)
+  - [Parameters](#parameters)
+  - [Writing data](#writing-data)
+- [Development](#development)
+  - [Committing changes](#committing-changes)
+  - [Testing](#testing)
+- [TODO](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -15,9 +23,11 @@
 
 JavaScript wrapper for the SeniorVu web API
 
-    srvu.communities(123)
-      .purchasedLeads({ q: 'brown, james', limit: 5 })
-      .get();
+```javascript
+srvu.communities(123)
+  .purchasedLeads({ q: 'brown, james', limit: 5 })
+  .get();
+```
 
 # Install
 
@@ -25,25 +35,31 @@ JavaScript wrapper for the SeniorVu web API
 
 In your code:
 
-    import SeniorVu from 'seniorvu-sdk';
+```javascript
+import SeniorVu from 'seniorvu-sdk';
+```
 
 # Usage
 
 Create a new instance of the SDK:
 
-    const srvu = new SeniorVu();
+```javascript
+const srvu = new SeniorVu();
+```
 
 ## Configuration
 
 Configuration options can either be passed to the constructor or to the `config()` method:
 
-    const srvu = new SeniorVu({
-      apiKey: 'foobar'
-    });
+```javascript
+const srvu = new SeniorVu({
+  apiKey: 'foobar'
+});
 
-    srvu.config({
-      apiKey: 'new-api-key'
-    });
+srvu.config({
+  apiKey: 'new-api-key'
+});
+```
 
 ## Authentication
 
@@ -53,24 +69,26 @@ By default, `authenticate()` will use options already passed in the constructor 
 
 `authenticate()` returns a promise the token result. A bearer token is stored in the instance for further requests.
 
-    // Use already-configured options
-    srvu.authenticate();
+```javascript
+// Use already-configured options
+srvu.authenticate();
 
-    // API key
-    srvu.authenticate({
-      apiKey: 'api-key-here'
-    });
+// API key
+srvu.authenticate({
+  apiKey: 'api-key-here'
+});
 
-    // Email and password
-    srvu.authenticate({
-      email: 'you@bar.baz',
-      password: 'secret'
-    });
+// Email and password
+srvu.authenticate({
+  email: 'you@bar.baz',
+  password: 'secret'
+});
 
-    // One-time token
-    srvu.authenticate({
-      oneTimeToken: 'one-time-token-here'
-    });
+// One-time token
+srvu.authenticate({
+  oneTimeToken: 'one-time-token-here'
+});
+```
 
 ## Fetching Data
 
@@ -80,26 +98,32 @@ The verb method returns a promise with the results of the call;
 
 For example, to fetch back a list of communities you would call:
 
-    srvu.communities().get()
-    .then(communities => {
-      // communities available here
-    })
-    .catch(err => {
-      // Any error that hapens
-    });
+```javascript
+srvu.communities().get()
+.then(communities => {
+  // communities available here
+})
+.catch(err => {
+  // Any error that hapens
+});
+```
 
 Parameters passed to methods are used as identifiers, so this will fetch the community with id `123`:
 
-    srvu.communities(123).get();
+```javascript
+srvu.communities(123).get();
 
-    // And this will fetch one of its purchased leads
-    srvu.communities(123).purchasedLeads(456).get()
+// And this will fetch one of its purchased leads
+srvu.communities(123).purchasedLeads(456).get();
+```
 
 ## Parameters
 
 Parameters can be passed as an object to the final method call:
 
-    srvu.communities(123).purchasedLeads({ sortBy: 'lastName' }).get();
+```javascript
+srvu.communities(123).purchasedLeads({ sortBy: 'lastName' }).get();
+```
 
 All possible parameters are listed in the SeniorVu API docs.
 
@@ -109,17 +133,21 @@ The verb methods that write data are `.put()`, `.post()`, and `.delete()`, as yo
 
 To update a community:
 
-    srvu.communities(123).put({
-      name: 'Some Fancy New Name'
-    });
+```javascript
+srvu.communities(123).put({
+  name: 'Some Fancy New Name'
+});
+```
 
 To create a new lead
 
-    srvu.leads().post({
-      firstName: 'Some',
-      lastName: 'Guy',
-      dob: '1955-5-5',
-    });
+```javascript
+srvu.leads().post({
+  firstName: 'Some',
+  lastName: 'Guy',
+  dob: '1955-5-5',
+});
+```
 
 # Development
 
