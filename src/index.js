@@ -46,14 +46,16 @@ export default class SeniorVu {
 
     // Create functions for each XHR verb
     ['get', 'post', 'put', 'delete'].map(verb => {
-      this[verb] = () => {
+      this[verb] = body => {
         // Clear chain
-        const opts = Object.assign({}, this.opts);
+        // const opts = Object.assign({}, this.opts);
+        opts = {};
         opts.method = verb;
 
         const segments = this.chain && this.chain.segments ? this.chain.segments : [];
         opts.url = [this.opts.baseUrl].concat('api', segments).join('/');
         opts.params = this.chain.params;
+        opts.data = body;
 
         this.chain = null;
 
@@ -62,7 +64,6 @@ export default class SeniorVu {
           return res.data;
         })
         .catch(err => {
-          console.error(err);
           throw err;
         });
       };
@@ -128,17 +129,6 @@ export default class SeniorVu {
     });
   }
 
-  // request(req = {}) {
-  //   req.headers = req.headers || {};
-  //
-  //   return this.ax({
-  //     method: req.method || 'get',
-  //     url: this.opts.baseUrl + '/' + req.path,
-  //     data: req.data,
-  //     params: req.params,
-  //   });
-  // }
-
   _buildMethods() {
     for (const path of PATHS) {
       this[path] = arg => {
@@ -147,6 +137,7 @@ export default class SeniorVu {
     }
   }
 
+  // TODO: fix when API method exists
   _isOneTimeToken(token) {
     return /srvu-.{12,}/.test(token);
   }

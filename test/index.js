@@ -1,37 +1,73 @@
+  /* eslint camelcase: 0 */
+
 import test from 'ava';
+import nock from 'nock';
+
 // import SeniorVu from '../src';
 import SeniorVu from '../dist/seniorvu';
 
+const HOSTNAME = 'http://foo.local';
+
 test.beforeEach(async t => {
-  t.context.srvu = new SeniorVu();
-  await t.context.srvu.config({
+  nock.disableNetConnect();
+  nock(HOSTNAME).post('/auth/login').reply(200, { token: 'foo' });
+
+  t.context.srvu = new SeniorVu({
+    baseUrl: HOSTNAME,
     email: process.env.EMAIL,
     password: process.env.PASSWORD,
-  })
-  .authenticate();
+  });
+  await t.context.srvu.authenticate();
+});
+
+test.afterEach(() => {
+  nock.cleanAll();
 });
 
 test('Can get communities', async t => {
-  // console.log(t.context.srvu);
-  const communties = await t.context.srvu.communities().get();
-  t.true(communties.length > 0);
+  const scope = mock('get', '/communities');
+  await t.context.srvu.communities().get();
+
+  t.true(scope.isDone());
 });
 
 test('Can use limit param on communities', async t => {
-  const communties = await t.context.srvu.communities({ limit: 1 }).get();
-  t.true(communties.length === 1);
+  const scope = mock('get', '/communities', { limit: 1 });
+  await t.context.srvu.communities({ limit: 1 }).get();
+
+  t.true(scope.isDone());
 });
 
 test('Can use query param on communities', async t => {
-  const communties = await t.context.srvu.communities({ q: 'brown' }).get();
-  t.false(communties.some(c => !/brown/i.test(c.name)));
+  const scope = mock('get', '/communities', { q: 'brown' });
+  await t.context.srvu.communities({ q: 'brown' }).get();
+
+  t.true(scope.isDone());
 });
 
 test('Can get purchased leads', async t => {
-  // console.log(t.context.srvu);
-  const leads = await t.context.srvu.communities(1)
+  const scope = mock('get', '/communities/1/purchasedLeads');
+  await t.context.srvu.communities(1)
     .purchasedLeads()
     .get();
 
-  t.true(leads.length > 0);
+  t.true(scope.isDone());
 });
+
+test('Can post purchased lead to community ', async t => {
+  const lead = { name: 'foo' };
+  const scope = mock('post', '/communities/1/purchasedLeads', null, lead);
+  await t.context.srvu.communities(1)
+    .purchasedLeads()
+    .post(lead);
+
+  t.true(scope.isDone());
+});
+
+function mock(verb, path, query, body) {
+  let scope = nock(HOSTNAME).intercept('/api' + path, verb.toUpperCase(), body);
+
+  if (query) scope = scope.query(query);
+
+  return scope.reply(200, { ok: true });
+}

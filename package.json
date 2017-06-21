@@ -41,6 +41,7 @@
     "eslint-config-xo-space": "^0.16.0",
     "handlebars": "^4.0.10",
     "lodash": "^4.17.4",
+    "nock": "^9.0.13",
     "npm-run-all": "^4.0.2",
     "nyc": "^11.0.2",
     "uglify-js": "^2.x",

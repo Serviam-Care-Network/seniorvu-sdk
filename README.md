@@ -61,6 +61,10 @@ srvu.config({
 });
 ```
 
+### Other Options
+
+* baseUrl
+
 ## Authentication
 
 You must supply an apiKey, username/password, or single-use token first to the `authenticate()` method first before using the SDK.
@@ -147,6 +151,12 @@ srvu.leads().post({
   lastName: 'Guy',
   dob: '1955-5-5',
 });
+```
+
+To delete a community room
+
+```javascript
+srvu.communities(123).rooms(456).delete();
 ```
 
 # Development
