@@ -47,8 +47,6 @@ export default class SeniorVu {
     // Create functions for each XHR verb
     ['get', 'post', 'put', 'delete'].map(verb => {
       this[verb] = body => {
-        // Clear chain
-        // const opts = Object.assign({}, this.opts);
         opts = {};
         opts.method = verb;
 
@@ -57,6 +55,7 @@ export default class SeniorVu {
         opts.params = this.chain.params;
         opts.data = body;
 
+        // Clear chain for reuse
         this.chain = null;
 
         return this.ax(opts)
@@ -143,7 +142,6 @@ export default class SeniorVu {
   }
 
   _chain(...segments) {
-    // console.log('chain segments', segments);
     this.chain = this.chain || { segments: [] };
 
     for (const s of segments) {
@@ -155,8 +153,6 @@ export default class SeniorVu {
         this.chain.segments.push(s);
       }
     }
-    // this.chain.segments = this.chain.segments.concat(segments.filter(x => x !== null && x !== undefined));
-    // console.log('this.chain', this.chain);
 
     return this;
   }
