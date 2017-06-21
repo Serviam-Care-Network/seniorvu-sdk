@@ -164,9 +164,11 @@ srvu.communities(123).rooms(456).delete();
 
 ## Committing changes
 
-Make sure you run `npm run build` and `npm run toc` before committing changes. A pre-commit hook helps.
+Make sure you run `npm run build` and `npm run toc` before committing changes. A [pre-commit hook](https://gist.github.com/c0bra/8f631ba440f021def5bd0d803713ecc7) helps.
 
 ## Testing
+
+*NOTE:* the tests run against the transpiled version, so if you use ava manually be sure that your changes are transpiled.
 
 Run `npm run test` to run tests with XO and ava.
 

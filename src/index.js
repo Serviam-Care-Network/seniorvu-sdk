@@ -89,11 +89,12 @@ export default class SeniorVu {
       return this.oneTimeTokenAuth(opts.token);
     }
 
-    // Auth via username and password
-    if (opts.email && opts.password) {
+    // Auth via username and password or apiKey
+    if ((opts.email && opts.password) || opts.apiKey) {
       return axios.post(opts.baseUrl + '/auth/login', {
         email: opts.email,
         password: opts.password,
+        apiKey: opts.apiKey,
       })
       .then(res => {
         if (res.data.token) {
@@ -121,6 +122,12 @@ export default class SeniorVu {
       if (res.data.token) {
         this.token = res.data.token;
         this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
+      }
+      if (res.data.userToken) {
+        return {
+          token: this.token,
+          userToken: res.data.userToken,
+        };
       }
     })
     .catch(err => {
