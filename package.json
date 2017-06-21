@@ -8,7 +8,8 @@
     "clean": "rimraf generated/* dist/*",
     "test": "xo && ava",
     "build": "webpack",
-    "toc": "doctoc README.md --github"
+    "toc": "doctoc README.md --github",
+    "debug": "node --inspect node_modules/ava/profile.js"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,9 @@
     "babel-cli": "^6.24.1",
     "babel-core": "^6.25.0",
     "babel-loader": "^7.0.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
     "doctoc": "^1.3.0",
     "eslint": "^3.19.0",
     "eslint-config-xo-space": "^0.16.0",
@@ -49,6 +52,7 @@
     "extends": "xo-space/esnext",
     "rules": {
       "capitalized-comments": 0,
+      "curly": ["error", "multi-line"],
       "object-curly-spacing": [
         "error",
         "always"
@@ -58,5 +62,11 @@
         "always-multiline"
       ]
     }
+  },
+  "ava": {
+    "babel": "inherit",
+    "require": [
+      "babel-register"
+    ]
   }
 }

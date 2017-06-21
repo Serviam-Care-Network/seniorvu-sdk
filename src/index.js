@@ -46,24 +46,39 @@ export default class SeniorVu {
 
     // Create functions for each XHR verb
     ['get', 'post', 'put', 'delete'].map(verb => {
-      this.prototype[verb] = () => {
+      this[verb] = () => {
         // Clear chain
-        this.chain = null;
-
         const opts = Object.assign({}, this.opts);
         opts.method = verb;
-        opts.url = [this.opts.baseUrl].concat(this.chain.segments).join('/');
-        return this.ax(opts);
+
+        const segments = this.chain && this.chain.segments ? this.chain.segments : [];
+        opts.url = [this.opts.baseUrl].concat('api', segments).join('/');
+        opts.params = this.chain.params;
+
+        this.chain = null;
+
+        return this.ax(opts)
+        .then(res => {
+          return res.data;
+        })
+        .catch(err => {
+          console.error(err);
+          throw err;
+        });
       };
 
       return null;
     });
+
+    this._buildMethods();
   }
 
   config(opts = {}) {
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
 
     this.token = this.opts.token || '';
+
+    return this;
   }
 
   authenticate(opts = {}) {
@@ -76,7 +91,7 @@ export default class SeniorVu {
 
     // Auth via username and password
     if (opts.email && opts.password) {
-      return axios.post(opts.baseUrl + 'auth/login', {
+      return axios.post(opts.baseUrl + '/auth/login', {
         email: opts.email,
         password: opts.password,
       })
@@ -92,6 +107,8 @@ export default class SeniorVu {
         throw new Error(err);
       });
     }
+
+    throw new Error('No authentication options provided');
   }
 
   oneTimeTokenAuth(token) {
@@ -123,7 +140,7 @@ export default class SeniorVu {
   _buildMethods() {
     for (const path of PATHS) {
       this[path] = arg => {
-        this._chain(path, arg);
+        return this._chain(path, arg);
       };
     }
   }
@@ -133,6 +150,21 @@ export default class SeniorVu {
   }
 
   _chain(...segments) {
-    (this.chain || this.chain = {}).segments.push(segments.filter(x => x !== null && x !== undefined));
+    // console.log('chain segments', segments);
+    this.chain = this.chain || { segments: [] };
+
+    for (const s of segments) {
+      if (s === null || s === undefined) continue;
+
+      if (typeof s === 'object') {
+        this.chain.params = s;
+      } else {
+        this.chain.segments.push(s);
+      }
+    }
+    // this.chain.segments = this.chain.segments.concat(segments.filter(x => x !== null && x !== undefined));
+    // console.log('this.chain', this.chain);
+
+    return this;
   }
 }
