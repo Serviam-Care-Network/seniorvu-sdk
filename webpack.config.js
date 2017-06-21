@@ -5,6 +5,10 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: './src/index.js',
+  target: 'node',
+  node: {
+    process: false,
+  },
   output: {
     library: 'seniorvu',
     libraryTarget: 'umd',
@@ -24,6 +28,9 @@ module.exports = {
       output: {
         comments: false,
       },
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     }),
   ],
 };
