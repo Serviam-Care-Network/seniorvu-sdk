@@ -8,6 +8,7 @@
     "clean": "rimraf generated/* dist/*",
     "test": "xo && ava",
     "build": "webpack",
+    "build:test": "npm run build && npm run test",
     "toc": "doctoc README.md --github",
     "debug": "node --inspect node_modules/ava/profile.js",
     "report": "nyc ava && nyc report"

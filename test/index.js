@@ -1,5 +1,6 @@
 import test from 'ava';
-import SeniorVu from '../src';
+// import SeniorVu from '../src';
+import SeniorVu from '../dist/seniorvu';
 
 test.beforeEach(async t => {
   t.context.srvu = new SeniorVu();
