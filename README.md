@@ -8,6 +8,7 @@
 - [Install](#install)
 - [Usage](#usage)
   - [Configuration](#configuration)
+    - [Other Options](#other-options)
   - [Authentication](#authentication)
   - [Fetching Data](#fetching-data)
   - [Parameters](#parameters)
