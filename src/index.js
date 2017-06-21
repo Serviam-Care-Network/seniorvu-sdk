@@ -99,9 +99,11 @@ export default class SeniorVu {
         if (res.data.token) {
           this.token = res.data.token;
           this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
-        } else {
-          throw new Error('No token received from SeniorVu API');
+
+          return this.token;
         }
+
+        throw new Error('No token received from SeniorVu API');
       })
       .catch(err => {
         throw new Error(err);
