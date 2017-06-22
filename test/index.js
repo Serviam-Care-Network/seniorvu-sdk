@@ -24,12 +24,19 @@ test.afterEach(() => {
   nock.cleanAll();
 });
 
+test('Can specify environment', t => {
+  const env = 'staging';
+  t.context.srvu.config({ env });
+
+  t.regex(t.context.srvu.baseUrl, /staging/);
+});
+
 test('Can manually specify token', t => {
   const token = 'token-foo';
   t.context.srvu.config({ token });
 
   t.is(token, t.context.srvu.token);
-  t.is(`Bearer ${token}`, t.context.srvu.ax.defaults.headers.Authorization);
+  t.is(t.context.srvu.ax.defaults.headers.Authorization, `Bearer ${token}`);
 });
 
 test('Can get communities', async t => {

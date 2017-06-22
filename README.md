@@ -64,7 +64,8 @@ srvu.config({
 
 ### Other Options
 
-* baseUrl
+* **baseUrl**: Set baseUrl for the api
+* **token**: Set bearer token manually
 
 ## Authentication
 

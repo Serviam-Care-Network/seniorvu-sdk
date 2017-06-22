@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+const ENVIRONMENTS = {
+  staging: 'https://staging.seniorvu.com',
+  prod: 'https://seniorvu.com',
+};
 const DEFAULT_OPTS = {
-  baseUrl: 'https://staging.seniorvu.com',
+  baseUrl: ENVIRONMENTS.prod,
 };
 
 const PATHS = [
@@ -74,6 +78,12 @@ export default class SeniorVu {
 
   config(opts = {}) {
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
+
+    if (this.opts.env && this.opts.env.indexOf('staging') === 0) {
+      this.baseUrl = ENVIRONMENTS.staging;
+    } else if (this.opts.env && this.opts.env.indexOf('prod') === 0) {
+      this.baseUrl = ENVIRONMENTS.prod;
+    }
 
     // Handle incoming token
     if (this.opts.token) {
