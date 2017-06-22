@@ -24,11 +24,11 @@ test.afterEach(() => {
   nock.cleanAll();
 });
 
-test('Can specify environment', t => {
+test('Can specify staging environment', t => {
   const env = 'staging';
   t.context.srvu.config({ env });
 
-  t.regex(t.context.srvu.baseUrl, /staging/);
+  t.regex(t.context.srvu.opts.baseUrl, /staging/);
 });
 
 test('Can manually specify token', t => {
@@ -37,6 +37,21 @@ test('Can manually specify token', t => {
 
   t.is(token, t.context.srvu.token);
   t.is(t.context.srvu.ax.defaults.headers.Authorization, `Bearer ${token}`);
+});
+
+test('Authenticate does not reset baseUrl', t => {
+  const srvu = new SeniorVu();
+  srvu.config({ env: 'staging' });
+
+  t.regex(srvu.opts.baseUrl, /staging/);
+
+  nock('https://staging.seniorvu.com').post('/auth/login').reply(200, { token: 'foo' });
+  srvu.authenticate({
+    email: 'foo',
+    password: 'bar',
+  });
+
+  t.regex(srvu.opts.baseUrl, /staging/);
 });
 
 test('Can get communities', async t => {

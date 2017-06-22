@@ -2,10 +2,10 @@ import axios from 'axios';
 
 const ENVIRONMENTS = {
   staging: 'https://staging.seniorvu.com',
-  prod: 'https://seniorvu.com',
+  prod: 'https://www.seniorvu.com',
 };
 const DEFAULT_OPTS = {
-  baseUrl: ENVIRONMENTS.prod,
+  // baseUrl: ENVIRONMENTS.prod,
 };
 
 const PATHS = [
@@ -77,19 +77,24 @@ export default class SeniorVu {
   }
 
   config(opts = {}) {
-    this.opts = Object.assign({}, DEFAULT_OPTS, opts);
+    this.opts = this.opts || {};
 
-    if (this.opts.env && this.opts.env.indexOf('staging') === 0) {
-      this.baseUrl = ENVIRONMENTS.staging;
-    } else if (this.opts.env && this.opts.env.indexOf('prod') === 0) {
-      this.baseUrl = ENVIRONMENTS.prod;
+    if (!opts.baseUrl && opts.env && opts.env.indexOf('staging') === 0) {
+      this.opts.baseUrl = ENVIRONMENTS.staging;
+    } else if (!opts.baseUrl && opts.env && opts.env.indexOf('prod') === 0) {
+      this.opts.baseUrl = ENVIRONMENTS.prod;
+    }
+
+    Object.assign(this.opts, DEFAULT_OPTS, opts);
+
+    if (!this.opts.baseUrl) {
+      this.opts.baseUrl = ENVIRONMENTS.prod;
     }
 
     // Handle incoming token
     if (this.opts.token) {
       this.token = this.opts.token;
       this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
-      console.log('foo', this.token);
     }
 
     return this;
@@ -99,8 +104,8 @@ export default class SeniorVu {
     opts = Object.assign({}, this.opts, opts);
 
     // Authenticate via one-time if we have one
-    if (opts.token && this._isOneTimeToken(opts.token)) {
-      return this.oneTimeTokenAuth(opts.token);
+    if (opts.oneTimeToken && this._isOneTimeToken(opts.oneTimeToken)) {
+      return this.oneTimeTokenAuth(opts.oneTimeToken);
     }
 
     // Auth via username and password or apiKey
@@ -115,7 +120,7 @@ export default class SeniorVu {
           this.token = res.data.token;
           this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
 
-          return this.token;
+          return { token: this.token };
         }
 
         throw new Error('No token received from SeniorVu API');
