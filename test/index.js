@@ -14,8 +14,8 @@ test.beforeEach(async t => {
 
   t.context.srvu = new SeniorVu({
     baseUrl: HOSTNAME,
-    email: process.env.EMAIL,
-    password: process.env.PASSWORD,
+    email: 'foo@foo.com',
+    password: 'password',
   });
   await t.context.srvu.authenticate();
 });
