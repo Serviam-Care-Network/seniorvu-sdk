@@ -1,4 +1,4 @@
-  /* eslint camelcase: 0 */
+/* eslint camelcase: 0 */
 
 import test from 'ava';
 import nock from 'nock';
@@ -22,6 +22,14 @@ test.beforeEach(async t => {
 
 test.afterEach(() => {
   nock.cleanAll();
+});
+
+test('Can manually specify token', t => {
+  const token = 'token-foo';
+  t.context.srvu.config({ token });
+
+  t.is(token, t.context.srvu.token);
+  t.is(`Bearer ${token}`, t.context.srvu.ax.defaults.headers.Authorization);
 });
 
 test('Can get communities', async t => {

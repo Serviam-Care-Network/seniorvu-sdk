@@ -40,8 +40,7 @@ const PATHS = [
 
 export default class SeniorVu {
   constructor(opts = {}) {
-    this.token = '';
-    this.opts = Object.assign({}, DEFAULT_OPTS, opts);
+    this.config(opts);
     this.ax = axios.create();
 
     // Create functions for each XHR verb
@@ -76,7 +75,12 @@ export default class SeniorVu {
   config(opts = {}) {
     this.opts = Object.assign({}, DEFAULT_OPTS, opts);
 
-    this.token = this.opts.token || '';
+    // Handle incoming token
+    if (this.opts.token) {
+      this.token = this.opts.token;
+      this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
+      console.log('foo', this.token);
+    }
 
     return this;
   }
