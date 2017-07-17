@@ -3,12 +3,14 @@
   "version": "1.0.2",
   "description": "JS wrapper SDK for the SeniorVu web API",
   "main": "dist/seniorvu.js",
+  "browser": "dist/seniorvu.js",
   "module": "src/index.js",
   "scripts": {
     "clean": "rimraf generated/* dist/*",
     "test": "webpack && xo && ava",
     "watch": "npm run test -- --watch",
     "build": "webpack",
+    "build:watch": "onchange src/** -- webpack",
     "toc": "doctoc README.md --github",
     "debug": "node --inspect node_modules/ava/profile.js",
     "report": "nyc ava && nyc report"
@@ -40,10 +42,10 @@
     "eslint": "^3.19.0",
     "eslint-config-xo-space": "^0.16.0",
     "handlebars": "^4.0.10",
-    "lodash": "^4.17.4",
     "nock": "^9.0.13",
     "npm-run-all": "^4.0.2",
     "nyc": "^11.0.2",
+    "onchange": "^3.2.1",
     "uglify-js": "^2.x",
     "webpack": "^3.0.0",
     "xo": "^0.18.2"

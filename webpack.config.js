@@ -20,6 +20,7 @@ module.exports = {
       { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
     ],
   },
+  devtool: '#cheap-module-source-map',
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       compress: {
@@ -28,6 +29,7 @@ module.exports = {
       output: {
         comments: false,
       },
+      sourceMap: true,
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
