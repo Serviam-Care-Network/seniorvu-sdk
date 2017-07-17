@@ -176,7 +176,7 @@ Run `npm run test` to run tests with XO and ava.
 
 ## Releasing
 
-@sindresorhus's `np` package is great for doing releases. Just install it globall and run `np` in your directory. Choose the option you want; voila, you're done.
+@sindresorhus's `np` package is great for doing releases. Just install it globally and run `np` in your directory. Choose the option you want; voila, you're done.
 
 # TODO
 
