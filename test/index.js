@@ -4,7 +4,7 @@ import test from 'ava';
 import nock from 'nock';
 
 // import SeniorVu from '../src';
-import SeniorVu from '../dist/seniorvu';
+import SeniorVu from '../src';
 
 const HOSTNAME = 'http://foo.local';
 
