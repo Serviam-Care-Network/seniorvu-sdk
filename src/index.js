@@ -39,6 +39,9 @@ const PATHS = [
   'forgotPassword',
   'me',
   'reset',
+  'statuses',
+  'events',
+  'priorities',
   'webhook',
 ];
 
@@ -63,7 +66,8 @@ export default class SeniorVu {
 
         return this.ax(opts)
         .then(res => {
-          return res.data;
+          if (res && res.data) return res.data;
+          return res;
         })
         .catch(err => {
           throw err;
@@ -83,6 +87,13 @@ export default class SeniorVu {
       this.opts.baseUrl = ENVIRONMENTS.staging;
     } else if (!opts.baseUrl && opts.env && opts.env.indexOf('prod') === 0) {
       this.opts.baseUrl = ENVIRONMENTS.prod;
+    }
+
+    // Delete any null props from the passed-in options
+    for (const prop of Object.keys(opts)) {
+      if (opts[prop] === null) {
+        delete opts[prop];
+      }
     }
 
     Object.assign(this.opts, DEFAULT_OPTS, opts);
@@ -126,7 +137,21 @@ export default class SeniorVu {
         throw new Error('No token received from SeniorVu API');
       })
       .catch(err => {
-        throw new Error(err);
+        let ex = null;
+        if (err.response) {
+          if (err.response.data && err.response.data.errors && err.response.data.errors.length > 0) {
+            const msg = err.response.data.errors[0].message || err.response.data.errors[0];
+            ex = new Error(msg);
+          }
+        } else if (err.request) {
+          ex = new Error('No response from SeniorVu API');
+        } else {
+          ex = new Error('Error settings up request');
+        }
+
+        ex.axios = err;
+
+        throw ex;
       });
     }
 

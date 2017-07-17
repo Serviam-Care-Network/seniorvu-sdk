@@ -31,6 +31,13 @@ test('Can specify staging environment', t => {
   t.regex(t.context.srvu.opts.baseUrl, /staging/);
 });
 
+test('Null baseUrl does not reset env to prod', t => {
+  const env = 'staging';
+  t.context.srvu.config({ env, baseUrl: null });
+
+  t.regex(t.context.srvu.opts.baseUrl, /staging/);
+});
+
 test('Can manually specify token', t => {
   const token = 'token-foo';
   t.context.srvu.config({ token });
