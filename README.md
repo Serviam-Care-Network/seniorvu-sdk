@@ -16,6 +16,7 @@
 - [Development](#development)
   - [Committing changes](#committing-changes)
   - [Testing](#testing)
+  - [Releasing](#releasing)
 - [TODO](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -172,6 +173,10 @@ Make sure you run `npm run build` and `npm run toc` before committing changes. A
 *NOTE:* the tests run against the transpiled version, so if you use ava manually be sure that your changes are transpiled.
 
 Run `npm run test` to run tests with XO and ava.
+
+## Releasing
+
+@sindresorhus's `np` package is great for doing releases. Just install it globall and run `np` in your directory. Choose the option you want; voila, you're done.
 
 # TODO
 
