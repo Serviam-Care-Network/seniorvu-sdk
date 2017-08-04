@@ -8,6 +8,14 @@ import SeniorVu from '../src';
 
 const HOSTNAME = 'http://foo.local';
 
+function mock(verb, path, query, body) {
+  let scope = nock(HOSTNAME).intercept('/api' + path, verb.toUpperCase(), body);
+
+  if (query) scope = scope.query(query);
+
+  return scope.reply(200, { ok: true });
+}
+
 test.beforeEach(async t => {
   nock.disableNetConnect();
   nock(HOSTNAME).post('/auth/login').reply(200, { token: 'foo' });
@@ -101,11 +109,3 @@ test('Can post purchased lead to community ', async t => {
 
   t.true(scope.isDone());
 });
-
-function mock(verb, path, query, body) {
-  let scope = nock(HOSTNAME).intercept('/api' + path, verb.toUpperCase(), body);
-
-  if (query) scope = scope.query(query);
-
-  return scope.reply(200, { ok: true });
-}

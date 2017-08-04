@@ -28,6 +28,7 @@ const PATHS = [
   'carers',
   'events',
   'reviews',
+  'tours',
   'rooms',
   'upload',
   'predict',
