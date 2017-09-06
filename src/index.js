@@ -44,6 +44,7 @@ const PATHS = [
   'events',
   'priorities',
   'webhook',
+  'deviceTokens',
 ];
 
 export default class SeniorVu {
@@ -130,9 +131,10 @@ export default class SeniorVu {
       .then(res => {
         if (res.data.token) {
           this.token = res.data.token;
+          this.userId = res.data.userId;
           this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
 
-          return { token: this.token };
+          return { token: this.token, userId: this.userId };
         }
 
         throw new Error('No token received from SeniorVu API');
