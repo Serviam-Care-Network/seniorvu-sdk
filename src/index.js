@@ -161,6 +161,16 @@ export default class SeniorVu {
     throw new Error('No authentication options provided');
   }
 
+  register(opts) {
+    return axios.post(this.opts.baseUrl + '/auth/registration', opts)
+    .then(res => {
+      return res;
+    })
+    .catch(err => {
+      this._handleError(err);
+    });
+  }
+
   oneTimeTokenAuth(token) {
     return axios.post(this.opts.baseUrl + '/auth/login', {
       token,
@@ -209,5 +219,23 @@ export default class SeniorVu {
     }
 
     return this;
+  }
+
+  _handleError(err) {
+    let ex = null;
+    if (err.response) {
+      if (err.response.data && err.response.data.errors && err.response.data.errors.length > 0) {
+        const msg = err.response.data.errors[0].message || err.response.data.errors[0];
+        ex = new Error(msg);
+      }
+    } else if (err.request) {
+      ex = new Error('No response from SeniorVu API');
+    } else {
+      ex = new Error('Error settings up request');
+    }
+
+    ex.axios = err;
+
+    throw ex;
   }
 }
