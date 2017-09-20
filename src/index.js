@@ -164,6 +164,7 @@ export default class SeniorVu {
   register(opts) {
     return axios.post(this.opts.baseUrl + '/auth/registration', opts)
     .then(res => {
+      if (res && res.data) return res.data;
       return res;
     })
     .catch(err => {
