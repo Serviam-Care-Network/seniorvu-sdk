@@ -9,6 +9,7 @@ const DEFAULT_OPTS = {
 };
 
 const PATHS = [
+  'available',
   'claimRequests',
   'communities',
   'address',
