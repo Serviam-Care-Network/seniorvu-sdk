@@ -78,7 +78,7 @@ export default class SeniorVu {
 
         return refresh
           .then(() => this.ax(opts))
-          .then(res => ((res && res.data) ? res.data : res))
+          .then(res => ((res && res.data) ? res.data : res));
       };
     });
 
@@ -137,7 +137,7 @@ export default class SeniorVu {
       .then(res => {
         if (res.data.token) {
           this.userId = res.data.userId;
-          this.updateToken(this.data.token)
+          this.updateToken(this.data.token);
 
           return { token: this.token, userId: this.userId };
         }
@@ -200,11 +200,8 @@ export default class SeniorVu {
   refreshToken() {
     return axios.post(this.opts.baseUrl + '/auth/refresh', { token: this.token })
       .then(({ data }) => {
-        this.updateToken(data.token)
+        this.updateToken(data.token);
         this.expireAt = data.expireAt;
-      })
-      .catch((err) => {
-        throw new Error(err); // maybe leave this off since it's not really adding anything to the error?
       });
   }
 
@@ -252,7 +249,7 @@ export default class SeniorVu {
     } else if (err.request) {
       ex = new Error('No response from SeniorVu API');
     } else {
-      ex = new Error('Error settings up request');
+      ex = new Error('Error setting up request');
     }
 
     ex.axios = err;
