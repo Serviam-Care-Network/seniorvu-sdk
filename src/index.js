@@ -193,7 +193,7 @@ export default class SeniorVu {
       }
     })
     .catch(err => {
-      throw new Error(err);
+      throw new Error(err); // maybe leave this off since it's not really adding anything to the error?
     });
   }
 
@@ -203,7 +203,9 @@ export default class SeniorVu {
         this.updateToken(data.token)
         this.expireAt = data.expireAt;
       })
-      .catch(err => throw new Error(err)); // maybe leave this off since it's not really adding anything to the error?
+      .catch((err) => {
+        throw new Error(err); // maybe leave this off since it's not really adding anything to the error?
+      });
   }
 
   _updateToken(token) {
