@@ -109,7 +109,7 @@ export default class SeniorVu {
 
     // Handle incoming token
     if (this.opts.token) {
-      this.updateToken(this.opts.token);
+      this._updateToken(this.opts.token);
     }
 
     if (this.opts.expireAt) {
@@ -137,11 +137,10 @@ export default class SeniorVu {
       .then(res => {
         if (res.data.token) {
           this.userId = res.data.userId;
-          this.updateToken(this.data.token);
+          this._updateToken(res.data.token);
 
           return { token: this.token, userId: this.userId };
         }
-
         throw new Error('No token received from SeniorVu API');
       })
       .catch(err => {
@@ -183,7 +182,7 @@ export default class SeniorVu {
     })
     .then(res => {
       if (res.data.token) {
-        this.updateToken(this.data.token);
+        this._updateToken(res.data.token);
       }
       if (res.data.userToken) {
         return {
@@ -198,9 +197,13 @@ export default class SeniorVu {
   }
 
   refreshToken() {
-    return axios.post(this.opts.baseUrl + '/auth/refresh', { token: this.token })
+    return axios({
+      url: `${this.opts.baseUrl}/auth/refresh`,
+      method: 'post',
+      headers: { Authorization: `Bearer ${this.token}` },
+    })
       .then(({ data }) => {
-        this.updateToken(data.token);
+        this._updateToken(data.token);
         this.expireAt = data.expireAt;
       });
   }
@@ -249,7 +252,8 @@ export default class SeniorVu {
     } else if (err.request) {
       ex = new Error('No response from SeniorVu API');
     } else {
-      ex = new Error('Error setting up request');
+      ex = err;
+      // ex = new Error('Error setting up request');
     }
 
     ex.axios = err;
