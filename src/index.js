@@ -1,5 +1,4 @@
 import axios from 'axios';
-import moment from 'moment';
 
 const ENVIRONMENTS = {
   staging: 'https://staging.seniorvu.com',
@@ -51,7 +50,7 @@ const PATHS = [
 
 // Check if the expiration time is within a day
 function expiresSoon(expireAt) {
-  return (moment(expireAt) - moment()) < moment.duration({ day: 1 }).asMilliseconds();
+  return (new Date(expireAt) - new Date()) < 1000 * 60 * 60 * 24;
 }
 
 export default class SeniorVu {
