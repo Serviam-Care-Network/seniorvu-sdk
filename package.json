@@ -6,8 +6,10 @@
   "browser": "dist/seniorvu.js",
   "module": "src/index.js",
   "scripts": {
+    "start": "webpack && xo && ava && doctoc README.md --github",
     "clean": "rimraf generated/* dist/*",
-    "test": "webpack && xo && ava",
+    "lint": "webpack && xo",
+    "test": "webpack && ava",
     "watch": "npm run test -- --watch",
     "build": "webpack",
     "build:watch": "onchange src/** -- webpack",

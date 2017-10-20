@@ -25,7 +25,9 @@ test.beforeEach(async t => {
     email: 'foo@foo.com',
     password: 'password',
   });
+
   await t.context.srvu.authenticate();
+  nock(HOSTNAME).post('/auth/refresh').reply(200, { token: 'bar', expireAt: 'future' });
 });
 
 test.afterEach(() => {
@@ -70,28 +72,28 @@ test('Can manually specify token', t => {
 //   t.regex(srvu.opts.baseUrl, /staging/);
 // });
 
-test('Can get communities', async t => {
+test.serial('Can get communities', async t => {
   const scope = mock('get', '/communities');
   await t.context.srvu.communities().get();
 
   t.true(scope.isDone());
 });
 
-test('Can use limit param on communities', async t => {
+test.serial('Can use limit param on communities', async t => {
   const scope = mock('get', '/communities', { limit: 1 });
   await t.context.srvu.communities({ limit: 1 }).get();
 
   t.true(scope.isDone());
 });
 
-test('Can use query param on communities', async t => {
+test.serial('Can use query param on communities', async t => {
   const scope = mock('get', '/communities', { q: 'brown' });
   await t.context.srvu.communities({ q: 'brown' }).get();
 
   t.true(scope.isDone());
 });
 
-test('Can get purchased leads', async t => {
+test.serial('Can get purchased leads', async t => {
   const scope = mock('get', '/communities/1/purchasedLeads');
   await t.context.srvu.communities(1)
     .purchasedLeads()
@@ -100,7 +102,7 @@ test('Can get purchased leads', async t => {
   t.true(scope.isDone());
 });
 
-test('Can post purchased lead to community ', async t => {
+test.serial('Can post purchased lead to community ', async t => {
   const lead = { name: 'foo' };
   const scope = mock('post', '/communities/1/purchasedLeads', null, lead);
   await t.context.srvu.communities(1)

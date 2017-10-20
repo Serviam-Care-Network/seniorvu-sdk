@@ -48,13 +48,18 @@ const PATHS = [
   'webhook',
 ];
 
+// Check if the expiration time is within a day
+function expiresSoon(expireAt) {
+  return (new Date(expireAt) - new Date()) < 1000 * 60 * 60 * 24;
+}
+
 export default class SeniorVu {
   constructor(opts = {}) {
     this.config(opts);
     this.ax = axios.create();
 
     // Create functions for each XHR verb
-    ['get', 'post', 'put', 'delete'].map(verb => {
+    ['get', 'post', 'put', 'delete'].forEach(verb => {
       this[verb] = body => {
         opts = {};
         opts.method = verb;
@@ -67,17 +72,13 @@ export default class SeniorVu {
         // Clear chain for reuse
         this.chain = null;
 
-        return this.ax(opts)
-        .then(res => {
-          if (res && res.data) return res.data;
-          return res;
-        })
-        .catch(err => {
-          throw err;
-        });
-      };
+        // Should we catch a possible expired token here or let consumer handle it??
+        const refresh = expiresSoon(this.expireAt) ? this.refreshToken() : Promise.resolve();
 
-      return null;
+        return refresh
+          .then(() => this.ax(opts))
+          .then(res => ((res && res.data) ? res.data : res));
+      };
     });
 
     this._buildMethods();
@@ -107,8 +108,11 @@ export default class SeniorVu {
 
     // Handle incoming token
     if (this.opts.token) {
-      this.token = this.opts.token;
-      this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
+      this._updateToken(this.opts.token);
+    }
+
+    if (this.opts.expireAt) {
+      this.expireAt = this.opts.expireAt;
     }
 
     return this;
@@ -131,13 +135,11 @@ export default class SeniorVu {
       })
       .then(res => {
         if (res.data.token) {
-          this.token = res.data.token;
           this.userId = res.data.userId;
-          this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
+          this._updateToken(res.data.token);
 
           return { token: this.token, userId: this.userId };
         }
-
         throw new Error('No token received from SeniorVu API');
       })
       .catch(err => {
@@ -179,8 +181,7 @@ export default class SeniorVu {
     })
     .then(res => {
       if (res.data.token) {
-        this.token = res.data.token;
-        this.ax.defaults.headers.Authorization = `Bearer ${this.token}`;
+        this._updateToken(res.data.token);
       }
       if (res.data.userToken) {
         return {
@@ -190,8 +191,25 @@ export default class SeniorVu {
       }
     })
     .catch(err => {
-      throw new Error(err);
+      throw new Error(err); // maybe leave this off since it's not really adding anything to the error?
     });
+  }
+
+  refreshToken() {
+    return axios({
+      url: `${this.opts.baseUrl}/auth/refresh`,
+      method: 'post',
+      headers: { Authorization: `Bearer ${this.token}` },
+    })
+      .then(({ data }) => {
+        this._updateToken(data.token);
+        this.expireAt = data.expireAt;
+      });
+  }
+
+  _updateToken(token) {
+    this.token = token;
+    this.ax.defaults.headers.Authorization = `Bearer ${token}`;
   }
 
   _buildMethods() {
@@ -233,7 +251,8 @@ export default class SeniorVu {
     } else if (err.request) {
       ex = new Error('No response from SeniorVu API');
     } else {
-      ex = new Error('Error settings up request');
+      ex = err;
+      // ex = new Error('Error setting up request');
     }
 
     ex.axios = err;
