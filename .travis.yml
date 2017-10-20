@@ -8,6 +8,7 @@ addons:
   jwt:
     secure: oVcyARJOYkTXC9Ay/urPpsGMpSxBaOceTQ0zOHk0n4Suo7nstrVkKylvtxcOgP1TW4FTjW+w0+NK8vI2jr/MgiVFMqnivnDovXodUqvTk0VSxTNilzESWc4ec6XCGr8JVGrQ3J9tT5kLHe364YNNfooramz11yT8TlR1CSx7BeuJdVjaTxSTJ+gyl2FFgXPDJUKGPZNtcIbiiZd0Y6HRkjzh/RG0AR+viiELZvLR0T/e7PZnxgAbglP+lS6gVVf8FTp7fbWBx/Uou3UVszGVokOALG4VkJ63aToan3TT4nJU35tO+p1gKM4XhDLW0+MfFrc4ZFIyYC+M0Ma9kd+XAtMNPODMwsLV8FpERyhksi7thv8KkJCGR2HQlVwkt4H1iCcUIsQiQbEG6htw6FvjhId7cjgNIdFDW4pC3GElzliARFC7Bl3GWJfcKSquiV7aIbAQGhB1lmweha+qoz0z+8r/cUEmozurE229CwTYerfr52QZZlGATwCm0kWrTI1tSSYRUqUITdJM8J8RBrPWuuwt5js6qAaCuL0Rs2uq6I8GEo4c7LGP6bGrmdB16xgPsa+nt7cRo5vkpvz9BaCawZZWv9Cthiy/fUGsAxp8Oq1WkVPfMZgYPAJCgT+Y/e6rUyvSl5k+ghwOg0xhqhRQopcq/KbLIJy9xx64fik/qqk=
 script:
+- npm run lint
 - npm run test
 after_success:
 - nyc ava && ./node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls
