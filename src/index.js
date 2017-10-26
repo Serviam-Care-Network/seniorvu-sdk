@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const ENVIRONMENTS = {
-  staging: 'https://staging.seniorvu.com',
+  staging: 'https://api.staging.seniorvu.com',
   prod: 'https://www.seniorvu.com',
 };
 const DEFAULT_OPTS = {
@@ -151,8 +151,10 @@ export default class SeniorVu {
           }
         } else if (err.request) {
           ex = new Error('No response from SeniorVu API');
+        } else if (err instanceof Error) {
+          ex = err;
         } else {
-          ex = new Error('Error settings up request');
+          ex = new Error('Error setting up request ' + err);
         }
 
         ex.axios = err;
