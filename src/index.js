@@ -55,8 +55,8 @@ function expiresSoon(expireAt) {
 
 export default class SeniorVu {
   constructor(opts = {}) {
-    this.config(opts);
     this.ax = axios.create();
+    this.config(opts);
 
     // Create functions for each XHR verb
     ['get', 'post', 'put', 'delete'].forEach(verb => {
