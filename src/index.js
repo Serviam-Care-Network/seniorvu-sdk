@@ -233,7 +233,7 @@ export default class SeniorVu {
 
   _chain(...segments) {
     let instance = this;
-    if (instance instanceof SeniorVu) instance = this._startChain();
+    if (!(instance instanceof SeniorVuChain)) instance = this._startChain();
 
     instance.chain = instance.chain || { segments: [] };
 
