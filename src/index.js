@@ -274,8 +274,4 @@ class SeniorVuChain extends SeniorVu {
   authenticate() {
     throw new Error('Cannot re-authenticate while chaining a request');
   }
-
-  // config() {
-  //   throw new Error('Cannot re-configure while chaining a request');
-  // }
 }
