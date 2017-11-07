@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const ENVIRONMENTS = {
   staging: 'https://api.staging.seniorvu.com',
-  prod: 'https://www.seniorvu.com',
+  prod: 'https://api.seniorvu.com',
 };
 const DEFAULT_OPTS = {
   // baseUrl: ENVIRONMENTS.prod,
