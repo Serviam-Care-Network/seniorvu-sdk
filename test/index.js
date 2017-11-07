@@ -102,7 +102,7 @@ test.serial('Can get purchased leads', async t => {
   t.true(scope.isDone());
 });
 
-test.serial('Can post purchased lead to community ', async t => {
+test.serial('Can post purchased lead to community', async t => {
   const lead = { name: 'foo' };
   const scope = mock('post', '/communities/1/purchasedLeads', null, lead);
   await t.context.srvu.communities(1)
@@ -110,4 +110,12 @@ test.serial('Can post purchased lead to community ', async t => {
     .post(lead);
 
   t.true(scope.isDone());
+});
+
+test.serial('Can run simultaneous requests', t => {
+  const one = t.context.srvu.statuses();
+  const two = t.context.srvu.priorities();
+
+  t.deepEqual(one.chain.segments, ['statuses']);
+  t.deepEqual(two.chain.segments, ['priorities']);
 });

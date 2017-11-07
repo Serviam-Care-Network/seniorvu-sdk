@@ -227,20 +227,27 @@ export default class SeniorVu {
     return /srvu-.{12,}/.test(token);
   }
 
+  _startChain() {
+    return new SeniorVuChain(this.opts); /* eslint no-use-before-define: "off" */
+  }
+
   _chain(...segments) {
-    this.chain = this.chain || { segments: [] };
+    let instance = this;
+    if (instance instanceof SeniorVu) instance = this._startChain();
+
+    instance.chain = instance.chain || { segments: [] };
 
     for (const s of segments) {
       if (s === null || s === undefined) continue;
 
       if (typeof s === 'object') {
-        this.chain.params = s;
+        instance.chain.params = s;
       } else {
-        this.chain.segments.push(s);
+        instance.chain.segments.push(s);
       }
     }
 
-    return this;
+    return instance;
   }
 
   _handleError(err) {
@@ -261,4 +268,14 @@ export default class SeniorVu {
 
     throw ex;
   }
+}
+
+class SeniorVuChain extends SeniorVu {
+  authenticate() {
+    throw new Error('Cannot re-authenticate while chaining a request');
+  }
+
+  // config() {
+  //   throw new Error('Cannot re-configure while chaining a request');
+  // }
 }
