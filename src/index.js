@@ -49,13 +49,16 @@ const PATHS = [
 ];
 
 // Check if the expiration time is within a day
-function expiresSoon(expireAt) {
+export function expiresSoon(expireAt) {
+  if (typeof expireAt === 'undefined') return true;
   return (new Date(expireAt) - new Date()) < 1000 * 60 * 60 * 24;
 }
 
 export default class SeniorVu {
-  constructor(opts = {}) {
-    this.ax = axios.create();
+  constructor(opts = {}, ax) {
+    if (ax) this.ax = ax;
+    else this.ax = axios.create();
+
     this.config(opts);
 
     // Create functions for each XHR verb
@@ -134,7 +137,7 @@ export default class SeniorVu {
         apiKey: opts.apiKey,
       })
       .then(res => {
-        if (res.data.token) {
+        if (res && res.data && res.data.token) {
           this.userId = res.data.userId;
           this._updateToken(res.data.token);
 
@@ -142,50 +145,30 @@ export default class SeniorVu {
         }
         throw new Error('No token received from SeniorVu API');
       })
-      .catch(err => {
-        let ex = null;
-        if (err.response) {
-          if (err.response.data && err.response.data.errors && err.response.data.errors.length > 0) {
-            const msg = err.response.data.errors[0].message || err.response.data.errors[0];
-            ex = new Error(msg);
-          }
-        } else if (err.request) {
-          ex = new Error('No response from SeniorVu API');
-        } else if (err instanceof Error) {
-          ex = err;
-        } else {
-          ex = new Error('Error setting up request ' + err);
-        }
-
-        ex.axios = err;
-
-        throw ex;
-      });
+      .catch(err => this._handleError(err));
     }
 
     throw new Error('No authentication options provided');
   }
 
   register(opts) {
-    return axios.post(this.opts.baseUrl + '/auth/registration', opts)
+    return this.ax(this.opts.baseUrl + '/auth/registration', opts)
     .then(res => {
       if (res && res.data) return res.data;
       return res;
     })
-    .catch(err => {
-      this._handleError(err);
-    });
+    .catch(err => this._handleError(err));
   }
 
   oneTimeTokenAuth(token) {
-    return axios.post(this.opts.baseUrl + '/auth/login', {
+    return this.ax(this.opts.baseUrl + '/auth/login', {
       token,
     })
     .then(res => {
-      if (res.data.token) {
+      if (res && res.data.token) {
         this._updateToken(res.data.token);
       }
-      if (res.data.userToken) {
+      if (res && res.data.userToken) {
         return {
           token: this.token,
           userToken: res.data.userToken,
@@ -198,15 +181,22 @@ export default class SeniorVu {
   }
 
   refreshToken() {
-    return axios({
+    return this.ax({
       url: `${this.opts.baseUrl}/auth/refresh`,
       method: 'post',
       headers: { Authorization: `Bearer ${this.token}` },
     })
-      .then(({ data }) => {
-        this._updateToken(data.token);
-        this.expireAt = data.expireAt;
-      });
+    .then(res => {
+      if (res && res.data && res.data.token) {
+        this._updateToken(res.data.token);
+        this.expireAt = res.data.expireAt;
+      } else {
+        const e = new Error('Problem refreshing jwt');
+        e.response = res;
+        throw e;
+      }
+    })
+    .catch(err => this._handleError(err));
   }
 
   _updateToken(token) {
@@ -228,7 +218,7 @@ export default class SeniorVu {
   }
 
   _startChain() {
-    return new SeniorVuChain(this.opts); /* eslint no-use-before-define: "off" */
+    return new SeniorVuChain(this.opts, this.ax); /* eslint no-use-before-define: "off" */
   }
 
   _chain(...segments) {
@@ -256,6 +246,11 @@ export default class SeniorVu {
       if (err.response.data && err.response.data.errors && err.response.data.errors.length > 0) {
         const msg = err.response.data.errors[0].message || err.response.data.errors[0];
         ex = new Error(msg);
+      } else if (err.response.data) {
+        ex = new Error(err.response.data);
+      } else {
+        ex = new Error('Unknown issue');
+        ex.err = err;
       }
     } else if (err.request) {
       ex = new Error('No response from SeniorVu API');
