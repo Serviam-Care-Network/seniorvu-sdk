@@ -12,7 +12,7 @@
     "test": "webpack && ava",
     "watch": "npm run test -- --watch",
     "build": "webpack",
-    "build:watch": "onchange src/** -- webpack",
+    "dev": "onchange src/** -- webpack",
     "toc": "doctoc README.md --github",
     "debug": "node --inspect node_modules/ava/profile.js",
     "cover": "nyc ava && nyc report"

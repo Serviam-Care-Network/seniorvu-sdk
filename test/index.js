@@ -4,7 +4,7 @@ import test from 'ava';
 import nock from 'nock';
 
 // import SeniorVu from '../src';
-import SeniorVu from '../src';
+import { default as SeniorVu, expiresSoon } from '../src';
 
 const HOSTNAME = 'http://foo.local';
 
@@ -118,4 +118,8 @@ test.serial('Can run simultaneous requests', t => {
 
   t.deepEqual(one.chain.segments, ['statuses']);
   t.deepEqual(two.chain.segments, ['priorities']);
+});
+
+test('expiresSoon handles undefined values', t => {
+  t.true(expiresSoon(undefined));
 });
