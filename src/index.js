@@ -152,7 +152,7 @@ export default class SeniorVu {
   }
 
   register(opts) {
-    return this.ax.post(this.opts.baseUrl + '/auth/registration', opts)
+    return axios.post(this.opts.baseUrl + '/auth/registration', opts)
     .then(res => {
       if (res && res.data) return res.data;
       return res;
@@ -257,6 +257,7 @@ export default class SeniorVu {
       }
     } else if (err.request) {
       ex = new Error('No response from SeniorVu API');
+      console.log(err.request);
     } else {
       ex = err;
       // ex = new Error('Error setting up request');

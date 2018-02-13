@@ -10,7 +10,7 @@
     "clean": "rimraf generated/* dist/*",
     "lint": "webpack && xo",
     "test": "webpack && ava",
-    "watch": "npm run test -- --watch",
+    "dev:test": "npm run test -- --watch",
     "build": "webpack",
     "dev": "onchange src/** -- webpack",
     "toc": "doctoc README.md --github",

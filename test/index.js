@@ -8,8 +8,8 @@ import { default as SeniorVu, expiresSoon } from '../src';
 
 const HOSTNAME = 'http://foo.local';
 
-function mock(verb, path, query, body) {
-  let scope = nock(HOSTNAME).intercept('/api' + path, verb.toUpperCase(), body);
+function mock(verb, path, query, body, noprefix) {
+  let scope = nock(HOSTNAME).intercept((noprefix ? '' : '/api') + path, verb.toUpperCase(), body);
 
   if (query) scope = scope.query(query);
 
@@ -118,6 +118,14 @@ test.serial('Can run simultaneous requests', t => {
 
   t.deepEqual(one.chain.segments, ['statuses']);
   t.deepEqual(two.chain.segments, ['priorities']);
+});
+
+test.serial('Register uses post verb', async t => {
+  const scope = nock(HOSTNAME).post('/auth/registration').reply(200, 'domain matched');
+
+  await t.context.srvu.register();
+
+  t.true(scope.isDone());
 });
 
 test('expiresSoon handles undefined values', t => {
