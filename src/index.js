@@ -181,6 +181,9 @@ export default class SeniorVu {
   }
 
   refreshToken() {
+    // If a token is needed then the following request will receive a 401
+    if (!this.token) return Promise.resolve();
+
     return this.ax({
       url: `${this.opts.baseUrl}/auth/refresh`,
       method: 'post',
