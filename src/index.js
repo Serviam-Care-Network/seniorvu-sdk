@@ -152,7 +152,7 @@ export default class SeniorVu {
   }
 
   register(opts) {
-    return this.ax(this.opts.baseUrl + '/auth/registration', opts)
+    return this.ax.post(this.opts.baseUrl + '/auth/registration', opts)
     .then(res => {
       if (res && res.data) return res.data;
       return res;
