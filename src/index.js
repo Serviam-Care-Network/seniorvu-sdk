@@ -41,6 +41,7 @@ const PATHS = [
   'reviews',
   'rooms',
   'statuses',
+  'tasks',
   'tours',
   'upload',
   'users',
