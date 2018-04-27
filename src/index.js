@@ -11,6 +11,7 @@ const DEFAULT_OPTS = {
 const PATHS = [
   'address',
   'amenities',
+  'analyticsUrl',
   'appointments',
   'archivedLeads',
   'assets',
