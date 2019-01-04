@@ -13,6 +13,7 @@
   - [Fetching Data](#fetching-data)
   - [Parameters](#parameters)
   - [Writing data](#writing-data)
+- [List of Valid Paths](#list-of-valid-paths)
 - [Development](#development)
   - [Committing changes](#committing-changes)
   - [Testing](#testing)
@@ -161,6 +162,59 @@ To delete a community room
 
 ```javascript
 srvu.communities(123).rooms(456).delete();
+```
+
+# List of Valid Paths
+
+```json
+[
+  "/claimRequests",
+  "/communities",
+  "/communities/predict",
+  "/communities/proximity",
+  "/communities/{communityId}",
+  "/communities/{communityId}/address",
+  "/communities/{communityId}/amenities",
+  "/communities/{communityId}/appointments",
+  "/communities/{communityId}/archivedLeads",
+  "/communities/{communityId}/archivedLeads/{archivedLeadId}",
+  "/communities/{communityId}/assets",
+  "/communities/{communityId}/assets/awsSettings",
+  "/communities/{communityId}/assets/image",
+  "/communities/{communityId}/assets/video",
+  "/communities/{communityId}/assets/{assetId}",
+  "/communities/{communityId}/cartItems",
+  "/communities/{communityId}/cartItems/{cartItemId}",
+  "/communities/{communityId}/hours",
+  "/communities/{communityId}/hours/{hourId}",
+  "/communities/{communityId}/leads",
+  "/communities/{communityId}/neighborhoods",
+  "/communities/{communityId}/payment",
+  "/communities/{communityId}/purchasedLeads",
+  "/communities/{communityId}/purchasedLeads/{purchasedLeadId}",
+  "/communities/{communityId}/purchasedLeads/{purchasedLeadId}/carers",
+  "/communities/{communityId}/purchasedLeads/{purchasedLeadId}/carers/{carerId}",
+  "/communities/{communityId}/purchasedLeads/{purchasedLeadId}/events",
+  "/communities/{communityId}/purchasedLeads/{purchasedLeadId}/events/{eventId}",
+  "/communities/{communityId}/reviews",
+  "/communities/{communityId}/reviews/{reviewId}",
+  "/communities/{communityId}/rooms",
+  "/communities/{communityId}/rooms/{roomId}",
+  "/communities/{communityId}/rooms/{roomId}/image",
+  "/communities/{communityId}/rooms/{roomId}/upload",
+  "/leads",
+  "/leads/batchCreate",
+  "/leads/deleteCreated",
+  "/leads/upload",
+  "/users",
+  "/users/forgotPassword",
+  "/users/me",
+  "/users/reset/{token}",
+  "/users/{userId}",
+  "/users/{userId}/password",
+  "/auth/login",
+  "/auth/registration",
+]
 ```
 
 # Development
