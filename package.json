@@ -1,6 +1,6 @@
 {
   "name": "seniorvu-sdk",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "JS wrapper SDK for the SeniorVu web API",
   "main": "dist/seniorvu.cjs.js",
   "module": "dist/seniorvu.esm.js",
