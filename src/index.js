@@ -1,12 +1,11 @@
 import axios from 'axios';
+import expiresSoon from './expires-soon';
 
 const ENVIRONMENTS = {
   staging: 'https://api.staging.seniorvu.com',
   prod: 'https://api.seniorvu.com',
 };
-const DEFAULT_OPTS = {
-  // baseUrl: ENVIRONMENTS.prod,
-};
+const DEFAULT_OPTS = {};
 
 const PATHS = [
   'address',
@@ -50,12 +49,6 @@ const PATHS = [
   'webhook',
 ];
 
-// Check if the expiration time is within a day
-export function expiresSoon(expireAt) {
-  if (typeof expireAt === 'undefined') return true;
-  return (new Date(expireAt) - new Date()) < 1000 * 60 * 60 * 24;
-}
-
 export default class SeniorVu {
   constructor(opts = {}, ax) {
     if (ax) this.ax = ax;
@@ -74,6 +67,10 @@ export default class SeniorVu {
         opts.params = this.chain.params;
         opts.data = body;
 
+        if (verb === 'get') {
+          opts.params = Object.assign({}, opts.params, body || {});
+        }
+
         // Clear chain for reuse
         this.chain = null;
 
@@ -87,6 +84,11 @@ export default class SeniorVu {
     });
 
     this._buildMethods();
+  }
+
+  // NOTE: expose for tests. Should be a better way but mixing default/named exports is a no-no
+  expiresSoon(...args) {
+    return expiresSoon(...args);
   }
 
   config(opts = {}) {
@@ -138,16 +140,17 @@ export default class SeniorVu {
         password: opts.password,
         apiKey: opts.apiKey,
       })
-      .then(res => {
-        if (res && res.data && res.data.token) {
-          this.userId = res.data.userId;
-          this._updateToken(res.data.token);
+        .then(res => {
+          if (res && res.data && res.data.token) {
+            this.userId = res.data.userId;
+            this._updateToken(res.data.token);
 
-          return { token: this.token, userId: this.userId };
-        }
-        throw new Error('No token received from SeniorVu API');
-      })
-      .catch(err => this._handleError(err));
+            return { token: this.token, userId: this.userId };
+          }
+
+          throw new Error('No token received from SeniorVu API');
+        })
+        .catch(error => this._handleError(error));
     }
 
     throw new Error('No authentication options provided');
@@ -155,31 +158,25 @@ export default class SeniorVu {
 
   register(opts) {
     return axios.post(this.opts.baseUrl + '/auth/registration', opts)
-    .then(res => {
-      if (res && res.data) return res.data;
-      return res;
-    })
-    .catch(err => this._handleError(err));
+      .then(res => res.data)
+      .catch(error => this._handleError(error));
   }
 
   oneTimeTokenAuth(token) {
     return this.ax(this.opts.baseUrl + '/auth/login', {
       token,
     })
-    .then(res => {
-      if (res && res.data.token) {
-        this._updateToken(res.data.token);
-      }
-      if (res && res.data.userToken) {
-        return {
-          token: this.token,
-          userToken: res.data.userToken,
-        };
-      }
-    })
-    .catch(err => {
-      throw new Error(err); // maybe leave this off since it's not really adding anything to the error?
-    });
+      .then(res => {
+        if (res && res.data.token) {
+          this._updateToken(res.data.token);
+        }
+        if (res && res.data.userToken) {
+          return {
+            token: this.token,
+            userToken: res.data.userToken,
+          };
+        }
+      });
   }
 
   refreshToken() {
@@ -191,17 +188,17 @@ export default class SeniorVu {
       method: 'post',
       headers: { Authorization: `Bearer ${this.token}` },
     })
-    .then(res => {
-      if (res && res.data && res.data.token) {
-        this._updateToken(res.data.token);
-        this.expireAt = res.data.expireAt;
-      } else {
-        const e = new Error('Problem refreshing jwt');
-        e.response = res;
-        throw e;
-      }
-    })
-    .catch(err => this._handleError(err));
+      .then(res => {
+        if (res && res.data && res.data.token) {
+          this._updateToken(res.data.token);
+          this.expireAt = res.data.expireAt;
+        } else {
+          const e = new Error('Problem refreshing jwt');
+          e.response = res;
+          throw e;
+        }
+      })
+      .catch(error => this._handleError(error));
   }
 
   _updateToken(token) {
@@ -259,7 +256,6 @@ export default class SeniorVu {
       }
     } else if (err.request) {
       ex = new Error('No response from SeniorVu API');
-      console.log(err.request);
     } else {
       ex = err;
       // ex = new Error('Error setting up request');

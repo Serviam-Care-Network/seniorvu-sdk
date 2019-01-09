@@ -17,6 +17,7 @@
 - [Development](#development)
   - [Committing changes](#committing-changes)
   - [Testing](#testing)
+  - [Coverage](#coverage)
   - [Linting](#linting)
   - [Releasing](#releasing)
 - [TODO](#todo)
@@ -27,10 +28,10 @@
 
 JavaScript wrapper for the SeniorVu web API
 
-```javascript
+```js
 srvu.communities(123)
-  .purchasedLeads({ q: 'brown, james', limit: 5 })
-  .get();
+  .purchasedLeads()
+  .get({ q: 'brown, james', limit: 5 });
 ```
 
 # Install
@@ -41,6 +42,10 @@ In your code:
 
 ```javascript
 import SeniorVu from 'seniorvu-sdk';
+
+// or
+
+const SeniorVu = require('seniorvu-sdk');
 ```
 
 # Usage
@@ -55,7 +60,7 @@ const srvu = new SeniorVu();
 
 Configuration options can either be passed to the constructor or to the `config()` method:
 
-```javascript
+```js
 const srvu = new SeniorVu({
   apiKey: 'foobar'
 });
@@ -72,13 +77,13 @@ srvu.config({
 
 ## Authentication
 
-You must supply an apiKey, username/password, or single-use token first to the `authenticate()` method first before using the SDK.
+In order to access private information, you must supply an apiKey, username/password, or single-use token to the `authenticate()` method.
 
 By default, `authenticate()` will use options already passed in the constructor or to `config()`. You can override these by passing an object to the method.
 
 `authenticate()` returns a promise the token result. A bearer token is stored in the instance for further requests.
 
-```javascript
+```js
 // Use already-configured options
 srvu.authenticate();
 
@@ -107,7 +112,7 @@ The verb method returns a promise with the results of the call;
 
 For example, to fetch back a list of communities you would call:
 
-```javascript
+```js
 srvu.communities().get()
 .then(communities => {
   // communities available here
@@ -119,7 +124,7 @@ srvu.communities().get()
 
 Parameters passed to methods are used as identifiers, so this will fetch the community with id `123`:
 
-```javascript
+```js
 srvu.communities(123).get();
 
 // And this will fetch one of its purchased leads
@@ -128,10 +133,13 @@ srvu.communities(123).purchasedLeads(456).get();
 
 ## Parameters
 
-Parameters can be passed as an object to the final method call:
+Query parameters can be passed as an object to the final method call, or to the action call if it is
+a get:
 
-```javascript
+```js
 srvu.communities(123).purchasedLeads({ sortBy: 'lastName' }).get();
+
+srvu.communities(123).purchasedLeads().get({ sortBy: 'lastName' });
 ```
 
 All possible parameters are listed in the SeniorVu API docs.
@@ -142,7 +150,7 @@ The verb methods that write data are `.put()`, `.post()`, and `.delete()`, as yo
 
 To update a community:
 
-```javascript
+```js
 srvu.communities(123).put({
   name: 'Some Fancy New Name'
 });
@@ -150,7 +158,7 @@ srvu.communities(123).put({
 
 To create a new lead
 
-```javascript
+```js
 srvu.leads().post({
   firstName: 'Some',
   lastName: 'Guy',
@@ -160,7 +168,7 @@ srvu.leads().post({
 
 To delete a community room
 
-```javascript
+```js
 srvu.communities(123).rooms(456).delete();
 ```
 
@@ -230,6 +238,14 @@ Also, make sure you run `npm run build` and `npm run toc` before committing chan
 *NOTE:* the tests run against the transpiled version, so if you use ava manually be sure that your changes are transpiled.
 
 Run `npm (run) test` to run tests with ava.
+
+## Coverage
+
+    # Run sirv in another terminal window
+    npx sirv ./coverage
+
+    # Build and run tests+coverage on changes
+    npm run cover:watch
 
 ## Linting
 
