@@ -4,7 +4,6 @@
   "description": "JS wrapper SDK for the SeniorVu web API",
   "main": "dist/seniorvu.cjs.js",
   "module": "dist/seniorvu.esm.js",
-  "browser": "dist/seniorvu.umd.js",
   "scripts": {
     "start": "webpack && xo && ava && doctoc README.md --github",
     "clean": "rimraf generated/* dist/*",

@@ -9,15 +9,13 @@ import visualizer from 'rollup-plugin-visualizer';
 import pkg from './package.json'; // eslint-disable-line import/extensions
 
 export default [
-  // browser-friendly UMD build
   {
     input: 'src/index.js',
-    output: {
-      name: 'seniorvu',
-      file: pkg.browser,
-      format: 'umd',
-      sourcemap: true,
-    },
+    external: ['axios'],
+    output: [
+      { name: 'seniorvu', file: pkg.main, format: 'cjs', sourcemap: true },
+      { name: 'seniorvu', file: pkg.module, format: 'es', sourcemap: true },
+    ],
     plugins: [
       globals(),
       builtins(),
@@ -32,15 +30,6 @@ export default [
       }),
       filesize(),
       visualizer(),
-    ],
-  },
-
-  {
-    input: 'src/index.js',
-    external: ['axios'],
-    output: [
-      { file: pkg.main, format: 'cjs', sourcemap: true },
-      { file: pkg.module, format: 'es', sourcemap: true },
     ],
   },
 ];
