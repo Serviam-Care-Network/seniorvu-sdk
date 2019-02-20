@@ -12,6 +12,7 @@
   - [Authentication](#authentication)
   - [Fetching Data](#fetching-data)
   - [Parameters](#parameters)
+    - [Common Parameters](#common-parameters)
   - [Writing data](#writing-data)
 - [List of Valid Paths](#list-of-valid-paths)
 - [Development](#development)
@@ -29,9 +30,11 @@
 JavaScript wrapper for the SeniorVu web API
 
 ```js
-srvu.communities(123)
-  .purchasedLeads()
-  .get({ q: 'brown, james', limit: 5 });
+srvu.communities()
+  .get()
+  .then(communities => {
+    console.log(communities);
+  });
 ```
 
 # Install
@@ -143,6 +146,15 @@ srvu.communities(123).purchasedLeads().get({ sortBy: 'lastName' });
 ```
 
 All possible parameters are listed in the SeniorVu API docs.
+
+### Common Parameters
+
+Many endpoints allow paging using `limit` and `offset` parameters:
+
+```js
+// Get the second 20 communities
+srvu.communities().get({ limit: 20, offset: 20 });
+```
 
 ## Writing data
 
